@@ -35,6 +35,32 @@ async function sendEmail(req, res) {
 	}
 };
 
+async function emailTracker(req, res) {
+
+	try {
+
+		const query = get(req, 'query', {});
+
+		const {
+			id
+		} = query;
+
+		await emailActionController.emailTracker({
+			id
+		});
+
+		return res.status(200).json({
+			status: 'OK',
+		});
+	} catch (error) {
+		logger.error(error);
+		res.status(500).json({
+			message: get(error, 'message', 'Internal Server Error'),
+		});
+	}
+};
+
 module.exports = {
 	sendEmail,
+	emailTracker,
 };

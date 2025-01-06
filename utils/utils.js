@@ -89,7 +89,8 @@ async function sendEmail(params = {}) {
 		subject,
 		body,
 		ccList = [],
-		bccList = []
+		bccList = [],
+		id,
 	} = params;
 
 	try {
@@ -109,9 +110,15 @@ async function sendEmail(params = {}) {
 			from: `${fromName} <${fromEmail}>`, // Custom "From" name and email
 			to: toEmail, // Recipient(s)
 			subject: subject, // Email subject
-			text: body, // Plain text body
 			cc: ccList, // CC recipients
-			bcc: bccList // BCC recipients
+			bcc: bccList, // BCC recipients
+			html: `
+            <p>${body}</p>
+			<a href="${config.SELF_URL}/api/v1/tracker?id=${id}">
+			Click here to learn more
+			</a>
+            <img src="${config.SELF_URL}/api/v1/tracker?id=${id}" style="display:none;" alt="tracking pixel"/>
+        `,
 		};
 
 		// Send the email

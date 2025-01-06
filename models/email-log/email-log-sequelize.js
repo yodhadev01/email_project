@@ -41,9 +41,14 @@ const EmailLogs = sequelize.define('EmailLogs', {
 		allowNull: false,
 		defaultValue: 'pending',
 	},
-	error_message: {
+	response: {
 		type: DataTypes.JSONB,
 		allowNull: true, // Null if no error occurred
+	},
+	is_open: {
+		type: DataTypes.BOOLEAN,
+		allowNull: true, // Null if no error occurred
+		defaultValue: false,
 	},
 	sent_at: {
 		type: DataTypes.DATE,

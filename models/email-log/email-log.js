@@ -10,7 +10,7 @@ async function logEmail (params = {}, options = {}) {
 		subject,
 		content,
 		status,
-		errorMessage = null,
+		response = null,
 		sentAt = new Date(),
 	} = params;
 
@@ -26,12 +26,44 @@ async function logEmail (params = {}, options = {}) {
 		subject: subject,
 		content: content,
 		status: status,
-		error_message: errorMessage,
+		response: response,
 		sent_at: sentAt,
 	}, {transaction});
 	return emailLog;
 };
 
+async function updateEmailLog (params = {}, options = {}) {
+
+	const {
+		id,
+		isOpen,
+	} = params;
+
+	const {
+		transaction
+	} = options;
+
+	const toUpdate = {};
+
+	if (isOpen){
+		toUpdate.is_open = true;
+	}
+
+	const requiredEmailLog = await EmailLogs.findOne({
+		where: {
+			id: id,
+		}
+	}, {transaction});
+
+	if (!requiredEmailLog){
+		throw new Error('Log Id Invalid');
+	}
+
+	const emailLog = await requiredEmailLog.update(toUpdate, {transaction});
+	return emailLog;
+};
+
 module.exports = {
 	logEmail,
+	updateEmailLog,
 };

@@ -17,8 +17,6 @@ async function sendEmail (params = {}) {
 	
 	const transaction = await sequelize.transaction();
 	try {
-		
-
 		const requiredEmailAccount = await emailAccountModel.findEmailAccount({}, {
 			transaction,
 		});
@@ -28,6 +26,15 @@ async function sendEmail (params = {}) {
 			ivHex: get(requiredEmailAccount, 'password.iv', null)
 		});
 
+		const requiredEamilLog = await emailLogModel.logEmail({
+			emailAccountId: get(requiredEmailAccount, 'id', null),
+			recipientEmail: toEmail,
+			ccMails: ccList,
+			bccMails: bccList,
+			subject,
+			content: emailBody,
+		}, {transaction});
+		
 		const response = await utils.sendEmail({
 			smtpHost: get(requiredEmailAccount, 'smtp_host', null),
 			smtpPort: get(requiredEmailAccount, 'smtp_port', null),
@@ -39,23 +46,38 @@ async function sendEmail (params = {}) {
 			subject: subject,
 			body: emailBody,
 			ccList: ccList,
-			bccList: bccList
+			bccList: bccList,
+			id: get(requiredEamilLog, 'id', null),
 		}, {transaction});
 
 		const status = response.success === true ? 'sent' : 'failed';
 
-		await emailLogModel.logEmail({
-			emailAccountId: get(requiredEmailAccount, 'id', null),
-			recipientEmail: toEmail,
-			ccMails: ccList,
-			bccMails: bccList,
-			subject,
-			content: emailBody,
+		await requiredEamilLog.update({
 			status,
-			errorMessage: response,
+			response,
 		}, {transaction});
 
-		console.log(response);
+		await transaction.commit();
+	} catch (error) {
+		await transaction.rollback();
+		logger.error(error);
+		throw new Error(error.message);
+	}
+}
+
+async function emailTracker (params = {}) {
+
+	const {
+		id
+	} = params;
+	
+	const transaction = await sequelize.transaction();
+	try {
+
+		await emailLogModel.updateEmailLog({
+			id,
+			isOpen: true,
+		}, {transaction});
 
 		await transaction.commit();
 	} catch (error) {
@@ -67,4 +89,5 @@ async function sendEmail (params = {}) {
 
 module.exports = {
 	sendEmail,
+	emailTracker,
 };

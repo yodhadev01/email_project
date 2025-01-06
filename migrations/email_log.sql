@@ -9,7 +9,8 @@ CREATE TABLE email_logs (
     subject VARCHAR(255) NULL,
     content TEXT NOT NULL,
     status email_log_enum NOT NULL DEFAULT 'pending',
-    error_message JSONB,
+    response JSONB,
+    is_open BOOLEAN DEFAULT FALSE,
     sent_at TIMESTAMP NULL,
     
     -- Foreign key to email_account table

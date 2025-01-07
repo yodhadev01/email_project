@@ -4,7 +4,7 @@ CREATE TYPE smtp_port_enum AS ENUM ('ssl', 'tls', 'none');
 CREATE TABLE email_account (
     id SERIAL PRIMARY KEY,
     from_name VARCHAR(255) NOT NULL,
-    from_email VARCHAR(255) NOT NULL UNIQUE,
+    from_email VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     password JSONB NOT NULL,
     use_different_account BOOLEAN DEFAULT FALSE,
